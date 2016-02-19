@@ -21,6 +21,12 @@
             <artifactId>graph-api</artifactId>
             <version>0.9.1</version>
         </dependency>
+        <dependency>
+            <groupId>it.uniroma1.dis.wsngroup.gexf4j</groupId>
+            <artifactId>gexf4j</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
 
 
     </dependencies>
