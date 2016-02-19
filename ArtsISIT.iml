@@ -11,5 +11,17 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-csv:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.gephi:graph-api:0.9.1" level="project" />
+    <orderEntry type="library" name="Maven: org.gephi:project-api:0.9.1" level="project" />
+    <orderEntry type="library" name="Maven: org.netbeans.api:org-openide-filesystems:RELEASE81" level="project" />
+    <orderEntry type="library" name="Maven: org.netbeans.api:org-openide-util:RELEASE81" level="project" />
+    <orderEntry type="library" name="Maven: org.gephi:utils-longtask:0.9.1" level="project" />
+    <orderEntry type="library" name="Maven: org.gephi:graphstore:0.5.3" level="project" />
+    <orderEntry type="library" name="Maven: it.unimi.dsi:fastutil:6.6.4" level="project" />
+    <orderEntry type="library" name="Maven: colt:colt:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: concurrent:concurrent:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.8.2" level="project" />
+    <orderEntry type="library" name="Maven: org.netbeans.api:org-openide-util-lookup:RELEASE81" level="project" />
   </component>
 </module>
