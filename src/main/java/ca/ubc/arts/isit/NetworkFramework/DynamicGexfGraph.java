@@ -27,6 +27,9 @@ import java.util.Calendar;
 
 public class DynamicGexfGraph {
 
+
+
+
 	public static void main(String[] args) {
 		Gexf gexf = new GexfImpl();
 		Calendar date = Calendar.getInstance();
