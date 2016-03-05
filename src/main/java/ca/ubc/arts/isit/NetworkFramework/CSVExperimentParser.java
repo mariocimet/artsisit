@@ -30,18 +30,18 @@ public class CSVExperimentParser {
                 Having the .csv in main/resources allows for using the class-loader - need to
                 change this to user selecting the file either with a GUI or the command-line
                  */
-
+// Paths for CSV Files
 		filepathUsers = "/Users.csv";
 		filepathNetwork = "/China.csv";
 
 
-
+// CSV Source for the Users
 		InputStream users = ISITMenu.class.getResourceAsStream(filepathUsers);
 		BufferedReader usersInput = new BufferedReader(new InputStreamReader(users));
 
 		Iterable<CSVRecord> userRecords = CSVFormat.EXCEL.withHeader().parse(usersInput);
 
-
+// CSV Source for the Discussion Forum
 	InputStream discussion = ISITMenu.class.getResourceAsStream(filepathNetwork);
 	BufferedReader discussionInput = new BufferedReader(new InputStreamReader(discussion));
 
@@ -52,7 +52,9 @@ public class CSVExperimentParser {
 
 		if(record.get("_type").equalsIgnoreCase("commentThread")){
 
-			Thread thread = new Thread(record.get("_id__$oid"),  new User( 1, "yo", "yo"));
+			Thread thread =
+					new Thread(Integer.parseInt(record.get("_id__$oid")),
+							new User( Integer.parseInt(record.get("author_id")), "yo", "yo"));
 			threads.add(thread);
 
 		}
