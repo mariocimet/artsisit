@@ -7,11 +7,11 @@ import java.util.List;
  * Created by mario on 2/28/16.
  */
 public class Thread {
-	public final int threadId;
-	public static ArrayList<User> users;
+	public final String threadId;
+	public static ArrayList<Integer> userkeys;
 
-	public Thread(int id, User op){
+	public Thread(String id, int op){
 		threadId = id;
-		users.add(op);
+		userkeys.add(op);
 	}
 }
