@@ -53,15 +53,23 @@ public class CSVExperimentParser {
 			String commentId = record.get("_id_$oid");
 			String threadID = record.get("comment_thread_id__$oid");
 			int authorID = Integer.parseInt(record.get("author_id"));
+			String body = record.get("body");
+			long date = Long.parseLong(record.get("created_at__$date"));
+			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
+
+
+			Comment c = new Comment(users.get(authorID), body, threadID, date, isThreadStarter);
+
+
 
 			//If a post is a new thread, create a thread object and initialize the list of users with the poster
-			if (type.equalsIgnoreCase("commentThread")) {
-				Thread thread = new Thread(record.get("_id__$oid"), authorID);
+			if (isThreadStarter) {
+				Thread thread = new Thread(commentId, c);
 				threads.put(commentId, thread);
 			}
 
 			if (type.equalsIgnoreCase("comment")) {
-				threads.get(threadID).userkeys.add(authorID);
+				threads.get(threadID).replies.add(c);
 			}
 
 		}

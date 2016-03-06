@@ -8,10 +8,10 @@ import java.util.List;
  */
 public class Thread {
 	public final String threadId;
-	public static ArrayList<Integer> userkeys;
+	public static ArrayList<Comment> replies;
 
-	public Thread(String id, int op){
+	public Thread(String id, Comment op){
 		threadId = id;
-		userkeys.add(op);
+		replies.add(op);
 	}
 }

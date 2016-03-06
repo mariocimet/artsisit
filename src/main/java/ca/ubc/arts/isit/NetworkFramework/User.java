@@ -2,6 +2,8 @@ package ca.ubc.arts.isit.NetworkFramework;
 
 import com.google.common.hash.HashCode;
 
+import java.util.ArrayList;
+
 /**
  * Created by mario on 2/28/16.
  */
@@ -9,6 +11,7 @@ public class User {
 	public final int authorId;
 	public final String userName;
 	public final String hash;
+	public static ArrayList<Comment> comments;
 
 	//Todo: Add a representation of dynamic attributes
 
