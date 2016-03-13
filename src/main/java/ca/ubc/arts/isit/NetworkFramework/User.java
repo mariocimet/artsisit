@@ -3,6 +3,8 @@ package ca.ubc.arts.isit.NetworkFramework;
 import com.google.common.hash.HashCode;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by mario on 2/28/16.
@@ -12,6 +14,7 @@ public class User {
 	public final String userName;
 	public final String hash;
 	public static ArrayList<Comment> comments;
+	public static Map<Date, Float> gradeAttribute;
 
 	//Todo: Add a representation of dynamic attributes
 

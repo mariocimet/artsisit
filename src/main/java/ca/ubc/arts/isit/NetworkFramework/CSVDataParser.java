@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.lang.*;
@@ -14,22 +15,33 @@ import java.lang.*;
 /**
  * Created by mario on 2/28/16.
  */
-public class CSVExperimentParser {
+public class CSVDataParser {
 	public static Map<String, Thread> threads;
 	public static Map<Integer, User> users;
 	public static String filepathNetwork;
 	public static String filepathUsers;
+	public static String filepathGrades;
 
 	public void main() throws IOException {
 
 		// Paths for CSV Files Todo: Switch this to a file chooser GUI
 		filepathUsers = "/Users.csv";
 		filepathNetwork = "/China.csv";
+		filepathGrades = "/Grades.csv";
+
+
+
 
 		// CSV Source for the Users
 		InputStream us = ISITMenu.class.getResourceAsStream(filepathUsers);
 		BufferedReader usersInput = new BufferedReader(new InputStreamReader(us));
 		Iterable<CSVRecord> userRecords = CSVFormat.EXCEL.withHeader().parse(usersInput);
+
+		//CSV Source for Grades
+		InputStream gs = ISITMenu.class.getResourceAsStream(filepathUsers);
+		BufferedReader gradesInput = new BufferedReader(new InputStreamReader(gs));
+		Iterable<CSVRecord> gradeRecords = CSVFormat.EXCEL.withHeader().parse(gradesInput);
+
 
 		// CSV Source for the Discussion Forum
 		InputStream discussion = ISITMenu.class.getResourceAsStream(filepathNetwork);
@@ -43,17 +55,34 @@ public class CSVExperimentParser {
 
 			users.put(Integer.parseInt(record.get("id")), u);
 
+
+
 		}
 
-		//Create list of threads with ordered lists of commenters
+
+		//Create dynamic attribute lists for Users
+		for(CSVRecord record : gradeRecords){
+			User u = users.get(Integer.parseInt(record.get("student_id")));
+
+			//TODO: Parse the Date
+			if(!record.get("max_grade").equalsIgnoreCase("NULL")) u.gradeAttribute.put(parseDate(record.get("created")), Float.parseFloat(record.get("grade")));
+
+
+
+
+
+
+		}
+
+		//Create list of threads with ordered lists of comments
  		for (CSVRecord record : forumRecords) {
 
-			//CSV column names
+			//CSV column names for comment fields
+			String body = record.get("body");
 			String type = record.get("type");
 			String commentId = record.get("_id_$oid");
 			String threadID = record.get("comment_thread_id__$oid");
 			int authorID = Integer.parseInt(record.get("author_id"));
-			String body = record.get("body");
 			long date = Long.parseLong(record.get("created_at__$date"));
 			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
 
@@ -73,6 +102,12 @@ public class CSVExperimentParser {
 			}
 
 		}
+
+	}
+
+	//Todo: Implement this method
+	private Date parseDate(String date){
+		return null;
 
 	}
 
