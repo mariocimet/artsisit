@@ -54,9 +54,6 @@ public class CSVDataParser {
 		User u = new User( Integer.parseInt(record.get("id")), record.get("username"), record.get("hash_id"));
 
 			users.put(Integer.parseInt(record.get("id")), u);
-
-
-
 		}
 
 
