@@ -22,6 +22,11 @@ public class CSVDataParser {
 	public static String filepathUsers;
 	public static String filepathGrades;
 
+
+	public CSVDataParser(){
+
+	}
+
 	public void main() throws IOException {
 
 		// Paths for CSV Files Todo: Switch this to a file chooser GUI

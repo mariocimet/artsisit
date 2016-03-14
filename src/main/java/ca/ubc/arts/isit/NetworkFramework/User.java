@@ -29,4 +29,17 @@ public class User {
 	}
 
 
+
+	public double averageGrade(){
+
+	//Todo: implement average grade calculation
+	return 0;
+
+	}
+
+	public double averageWordCount(){
+	//Todo: implement average word Count
+	return 0;
+	}
+
 }
