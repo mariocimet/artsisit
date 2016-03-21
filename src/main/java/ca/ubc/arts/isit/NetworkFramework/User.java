@@ -28,7 +28,15 @@ public class User {
 
 	}
 
+	public String getUserName(){
+		return this.userName;
+	}
 
+
+
+	public int getAuthorId(){
+		return this.authorId;
+	}
 
 	public double averageGrade(){
 

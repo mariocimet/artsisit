@@ -4,19 +4,18 @@ import it.uniroma1.dis.wsngroup.gexf4j.core.Edge;
 import it.uniroma1.dis.wsngroup.gexf4j.core.EdgeType;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Gexf;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Graph;
-import it.uniroma1.dis.wsngroup.gexf4j.core.IntervalType;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Mode;
 import it.uniroma1.dis.wsngroup.gexf4j.core.Node;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.Attribute;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeClass;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeList;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeType;
-import it.uniroma1.dis.wsngroup.gexf4j.core.dynamic.Spell;
 import it.uniroma1.dis.wsngroup.gexf4j.core.dynamic.TimeFormat;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.GexfImpl;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.SpellImpl;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.StaxGraphWriter;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.data.AttributeListImpl;
+import org.javatuples.Pair;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,11 +24,14 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Map;
+
 
 
 public class DynamicGexfGraph {
 
-	private ArrayList<Edge> edges;
+	private ArrayList<Pair> edges;
 
 public static void newMain(String[] args){
 
@@ -45,6 +47,15 @@ public static void newMain(String[] args){
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
+
+
+
+
+	//Todo: clean up this map/Collection nonsense - is there a reason to use a map in the parsing?
+	Map<Integer, User> usersM = data.users;
+	Map<String, Thread> threadsM =data.threads;
+	ArrayList<User> users = new ArrayList<User>(usersM.values());
+	ArrayList<Thread> threads = new ArrayList<Thread>(threadsM.values());
 
 	//Make Course Title change according to file being parsed
 	String coursetitle = "ChinaMOOC20143T";
@@ -77,60 +88,81 @@ public static void newMain(String[] args){
 	Attribute studentID = attrList.createAttribute("3", AttributeType.INTEGER, "id");
 
 //TODO: Allow access to parsed information - threads, grades, users
-	/*
-	* // Build the Nodes:
-	*
-	*
-	* for(int i = 0; i < users.size(); i++){
-	*
-	* User u = users.get(i);
-	*
-	* Node nodeUser = graph.createNode(u.getAuthorID());
-	*
-	* nodeUser
-	* 	.setLabel(u.getName())
-	* 	.getAttributeValues()
-	* 	.addValue(, "1");
-	*
+
+	 // Build the Nodes:
+
+	 for(int i = 0; i < users.size(); i++){
+
+	 User u = users.get(i);
+
+	 Node nodeUser = graph.createNode(u.getUserName());
+	 nodeUser
+	 	.setLabel(Integer.toString(u.getAuthorId()))
+	 	.getAttributeValues();
 	// Todo: add dynamic grade attribute like Cartel example
 	// Todo: find library to direcly alter the xml configuration file
-	*
-	* }
-	*
-	*
-	* //Build the Edges
-	*
-	*
-	* //Simple Chain Network Algorithm
-	*
-	*  Todo: add name network features?
-	*
-	* for(thread:threads){
-	*   for(int i = 1; i < thread.size(); i++){
-	*   User iUser = thread.get(i).user;
-	*
-	*     for(int j = 0; i<j; i++){
-	*
-	*       User jUser = thread.get(i).user;
-	*       edge e = edge(iUser,jUser);
-	*       weight = calculateWeight(i,j);
-	*       date = thread.get(i).getDate();
-	*
-	*       if(e.exists()){ e.addWeight(i,j)
-	*         }else {
-	*
-	*         edges.add( new Edge(iUser,jUser,weight,date);
-	*
-	*         };
-	*
-	*     }
-	*
-	*
-	*
-	*
-	* }
-	*
-	* */
+
+	 }
+
+	 //Build the Edges
+
+	 //Simple Chain Network Algorithm
+
+	  // Todo: add name network features?
+	//Todo: finish chain network algorighm - then work on dynamic attributes
+
+
+	for(int n = 0; n < threads.size(); n++){
+		 Thread thread = threads.get(n);
+
+		 ArrayList<Comment> replies = thread.replies;
+
+	   for(int i = 1; i < replies.size(); i++){
+	      User iUser = replies.get(i).author;
+
+	     for(int j = 0; i<j; i++){
+
+	       User jUser = replies.get(i).author;
+
+			 Node a = graph.getNode(iUser.getUserName());
+			 Node b = graph.getNode(jUser.getUserName());
+
+			 if(!(a.hasEdgeTo(b.getId()) ||  b.hasEdgeTo(a.getId()))) {
+				 a.connectTo((a.getId() +"-"+ b.getId()), b);
+
+
+				 for(int m =0; m < a.getEdges().size(); m++){
+					 Edge e = a.getEdges().get(m);
+					 if (e.getId().equalsIgnoreCase((a.getId() +"-"+ b.getId()))){
+						 e.setWeight(calculateWeight(i,j));
+						 //Todo: how to add dynamic spell to this?
+						 // could be e.getSpells().add(new Spell(Date)));
+					 }
+				 }
+
+
+
+			 }else{
+				 for(int k = 0; k< a.getEdges().size();k++ ){
+					 Edge e = a.getEdges().get(k);
+					 if(e.getId().equalsIgnoreCase(a.getId() +"-"+ b.getId()) || e.getId().equalsIgnoreCase(b.getId() +"-"+ a.getId())){
+						float currentWeight = e.getWeight();
+						 e.setWeight(currentWeight + calculateWeight(i,j));
+					 }
+				 }
+			 }
+
+
+	         }
+
+	     }
+
+
+
+	 }
+
+
+
 
 
 
@@ -143,6 +175,14 @@ public static void newMain(String[] args){
 		System.out.println(f.getAbsolutePath());
 	} catch (IOException e) {
 		e.printStackTrace();
+	}
+}
+
+
+	public static int calculateWeight(int i, int j){
+
+
+		return 0;
 	}
 }
 
@@ -326,4 +366,4 @@ public static void newMain(String[] args){
 		} catch (IOException e) {
 			e.printStackTrace();
 		}*/
-	}
+
