@@ -22,18 +22,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Map;
-
-
+import java.util.*;
 
 public class DynamicGexfGraph {
 
-	private ArrayList<Pair> edges;
+	private static HashMap<String, Edge> edges;
 
-public static void newMain(String[] args){
+public static void main(String[] args){
+
 
 
 
@@ -54,6 +50,7 @@ public static void newMain(String[] args){
 	//Todo: clean up this map/Collection nonsense - is there a reason to use a map in the parsing?
 	Map<Integer, User> usersM = data.users;
 	Map<String, Thread> threadsM =data.threads;
+	edges = new HashMap<String, Edge>();
 	ArrayList<User> users = new ArrayList<User>(usersM.values());
 	ArrayList<Thread> threads = new ArrayList<Thread>(threadsM.values());
 
@@ -102,6 +99,8 @@ public static void newMain(String[] args){
 	// Todo: add dynamic grade attribute like Cartel example
 	// Todo: find library to direcly alter the xml configuration file
 
+		// System.out.println(nodeUser.getId());
+
 	 }
 
 	 //Build the Edges
@@ -109,65 +108,44 @@ public static void newMain(String[] args){
 	 //Simple Chain Network Algorithm
 
 	  // Todo: add name network features?
-	//Todo: finish chain network algorighm - then work on dynamic attributes
 
+	//Todo: Serious performance improvements needed - see about using hashtables or Maps for O(1) access
+	//How to use memoization here
 
+//For each thread
+
+	System.out.println(Integer.toString(threads.size()));
 	for(int n = 0; n < threads.size(); n++){
-		 Thread thread = threads.get(n);
 
+		 Thread thread = threads.get(n);
 		 ArrayList<Comment> replies = thread.replies;
 
-	   for(int i = 1; i < replies.size(); i++){
-	      User iUser = replies.get(i).author;
-
-	     for(int j = 0; i<j; i++){
-
-	       User jUser = replies.get(i).author;
-
-			 Node a = graph.getNode(iUser.getUserName());
-			 Node b = graph.getNode(jUser.getUserName());
-
-			 if(!(a.hasEdgeTo(b.getId()) ||  b.hasEdgeTo(a.getId()))) {
-				 a.connectTo((a.getId() +"-"+ b.getId()), b);
+//For each comment in the thread
+	   for(int i = 1; i < replies.size(); i++) {
 
 
-				 for(int m =0; m < a.getEdges().size(); m++){
-					 Edge e = a.getEdges().get(m);
-					 if (e.getId().equalsIgnoreCase((a.getId() +"-"+ b.getId()))){
-						 e.setWeight(calculateWeight(i,j));
-						 //Todo: how to add dynamic spell to this?
-						 // could be e.getSpells().add(new Spell(Date)));
-					 }
-				 }
+		   User sourceUser  = replies.get(i).author;
+		   User targetUser = replies.get(i-1).author;
+
+		   Node target = graph.getNode(targetUser.getUserName());
+		   Node source = graph.getNode(sourceUser.getUserName());
 
 
-
-			 }else{
-				 for(int k = 0; k< a.getEdges().size();k++ ){
-					 Edge e = a.getEdges().get(k);
-					 if(e.getId().equalsIgnoreCase(a.getId() +"-"+ b.getId()) || e.getId().equalsIgnoreCase(b.getId() +"-"+ a.getId())){
-						float currentWeight = e.getWeight();
-						 e.setWeight(currentWeight + calculateWeight(i,j));
-					 }
-				 }
-			 }
-
-
-	         }
-
-	     }
-
-
-
-	 }
-
-
+			   if (!edges.containsKey(source.getId() + "-" + target.getId())) {
+				 Edge e =  source.connectTo(target).setWeight((float).5);
+				   edges.put(source.getId() + "-" + target.getId(), e);
+			   }else{
+				  float weight = edges.get(source.getId() + "-" + target.getId()).getWeight();
+				   edges.get(source.getId() + "-" + target.getId()).setWeight(weight + ((float).5));
+			   }
+		   }
+	   }
 
 
 
 
 	StaxGraphWriter graphWriter = new StaxGraphWriter();
-	File f = new File("dynamic_graph_sample.gexf");
+	File f = new File(coursetitle + " -Network" + ".gexf");
 	Writer out;
 	try {
 		out =  new FileWriter(f, false);
@@ -179,10 +157,12 @@ public static void newMain(String[] args){
 }
 
 
-	public static int calculateWeight(int i, int j){
+	public static float calculateWeight(int i, int j){
 
+		Double w = 2 * Math.pow(.5, Math.abs(i-j));
 
-		return 0;
+		return new Float(w);
+
 	}
 }
 

@@ -12,6 +12,7 @@ public class Thread {
 
 	public Thread(String id, Comment op){
 		threadId = id;
+		replies = new ArrayList<Comment>();
 		replies.add(op);
 	}
 }

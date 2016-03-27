@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.lang.*;
@@ -29,11 +30,14 @@ public class CSVDataParser {
 
 	public void main() throws IOException {
 
+
 		// Paths for CSV Files Todo: Switch this to a file chooser GUI
 		filepathUsers = "/Users.csv";
 		filepathNetwork = "/China.csv";
 		filepathGrades = "/Grades.csv";
 
+		threads = new HashMap<String,Thread>();
+		users = new HashMap<Integer, User>();
 
 
 
@@ -42,11 +46,13 @@ public class CSVDataParser {
 		BufferedReader usersInput = new BufferedReader(new InputStreamReader(us));
 		Iterable<CSVRecord> userRecords = CSVFormat.EXCEL.withHeader().parse(usersInput);
 
+		//Todo: add in grade parsing
+/*
 		//CSV Source for Grades
 		InputStream gs = ISITMenu.class.getResourceAsStream(filepathUsers);
 		BufferedReader gradesInput = new BufferedReader(new InputStreamReader(gs));
 		Iterable<CSVRecord> gradeRecords = CSVFormat.EXCEL.withHeader().parse(gradesInput);
-
+*/
 
 		// CSV Source for the Discussion Forum
 		InputStream discussion = ISITMenu.class.getResourceAsStream(filepathNetwork);
@@ -63,29 +69,30 @@ public class CSVDataParser {
 
 
 		//Create dynamic attribute lists for Users
+		/*
 		for(CSVRecord record : gradeRecords){
-			User u = users.get(Integer.parseInt(record.get("student_id")));
+			User u = users.get(Integer.parseInt(record.get("id")));
 
 			//TODO: Parse the Date
-			if(!record.get("max_grade").equalsIgnoreCase("NULL")) u.gradeAttribute.put(parseDate(record.get("created")), Float.parseFloat(record.get("grade")));
-
-
-
-
-
+		if(!record.get("max_grade").equalsIgnoreCase("NULL")) u.gradeAttribute.put(parseDate(record.get("created")), Float.parseFloat(record.get("grade")));
 
 		}
+		*/
 
 		//Create list of threads with ordered lists of comments
  		for (CSVRecord record : forumRecords) {
 
 			//CSV column names for comment fields
 			String body = record.get("body");
-			String type = record.get("type");
-			String commentId = record.get("_id_$oid");
+			String type = record.get("_type");
+			String commentId = record.get("_id__$oid");
 			String threadID = record.get("comment_thread_id__$oid");
 			int authorID = Integer.parseInt(record.get("author_id"));
-			long date = Long.parseLong(record.get("created_at__$date"));
+
+
+			//Todo: fix, Currently erroring
+			// long date = Long.parseLong(record.get("created_at__$date"));
+			long date = 0;
 			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
 
 
