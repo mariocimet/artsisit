@@ -24,7 +24,7 @@
             //Create and set up the window.
             JFrame frame = new JFrame("ISITMenu");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            JLabel label = new JLabel("NetworkWrangler");
+            JLabel label = new JLabel("NetworkApp");
             label.setPreferredSize(new Dimension(175, 100));
             frame.getContentPane().add(label, BorderLayout.CENTER);
 

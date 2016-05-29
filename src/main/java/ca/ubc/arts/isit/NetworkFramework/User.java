@@ -12,7 +12,7 @@ import java.util.Map;
 public class User {
 	public final int authorId;
 	public final String userName;
-	public final String hash;
+	public final Date firstPost;
 	public static ArrayList<Comment> comments;
 	public static Map<Date, Float> gradeAttribute;
 
@@ -21,11 +21,10 @@ public class User {
 	public enum userType { INSTRUCTOR, TA, STUDENT}
 
 
-	public User(int authorId, String userName, String hash){
+	public User(int authorId, String userName, Date firstPost){
 		this.authorId = authorId;
 		this.userName = userName;
-		this.hash = hash;
-
+		this.firstPost = firstPost;
 	}
 
 	public String getUserName(){

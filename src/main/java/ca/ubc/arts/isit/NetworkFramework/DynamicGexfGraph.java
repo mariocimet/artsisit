@@ -1,15 +1,11 @@
 package ca.ubc.arts.isit.NetworkFramework;
 
-import it.uniroma1.dis.wsngroup.gexf4j.core.Edge;
-import it.uniroma1.dis.wsngroup.gexf4j.core.EdgeType;
-import it.uniroma1.dis.wsngroup.gexf4j.core.Gexf;
-import it.uniroma1.dis.wsngroup.gexf4j.core.Graph;
-import it.uniroma1.dis.wsngroup.gexf4j.core.Mode;
-import it.uniroma1.dis.wsngroup.gexf4j.core.Node;
+import it.uniroma1.dis.wsngroup.gexf4j.core.*;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.Attribute;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeClass;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeList;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeType;
+import it.uniroma1.dis.wsngroup.gexf4j.core.dynamic.Spell;
 import it.uniroma1.dis.wsngroup.gexf4j.core.dynamic.TimeFormat;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.GexfImpl;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.SpellImpl;
@@ -29,13 +25,10 @@ public class DynamicGexfGraph {
 	private static HashMap<String, Edge> edges;
 
 public static void main(String[] args){
-
-
-
-
 	//Todo: Clean up/refactor this way of accessing the parsed data
 	//Get access to parsed data
 	CSVDataParser data = new CSVDataParser();
+	Date endDate =  new Date(1423580832420L);
 
 	try {
 		//Use main() to be able to access threads, users, etc;
@@ -43,7 +36,6 @@ public static void main(String[] args){
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
-
 
 
 
@@ -58,6 +50,7 @@ public static void main(String[] args){
 	String coursetitle = "ChinaMOOC20143T";
 	Gexf gexf = new GexfImpl();
 	Calendar date = Calendar.getInstance();
+
 
 	gexf.getMetadata()
 			.setLastModified(date.getTime())
@@ -96,10 +89,15 @@ public static void main(String[] args){
 	 nodeUser
 	 	.setLabel(Integer.toString(u.getAuthorId()))
 	 	.getAttributeValues();
-	// Todo: add dynamic grade attribute like Cartel example
-	// Todo: find library to direcly alter the xml configuration file
 
-		// System.out.println(nodeUser.getId());
+		 Spell start = new SpellImpl();
+		 start.setStartValue(u.firstPost);
+		 start.setEndValue(endDate);
+
+
+
+		 nodeUser.getSpells().add(start);
+
 
 	 }
 
@@ -107,13 +105,8 @@ public static void main(String[] args){
 
 	 //Simple Chain Network Algorithm
 
-	  // Todo: add name network features?
-
-	//Todo: Serious performance improvements needed - see about using hashtables or Maps for O(1) access
-	//How to use memoization here
-
 //For each thread
-
+	System.out.println(users.size());
 	System.out.println(Integer.toString(threads.size()));
 	for(int n = 0; n < threads.size(); n++){
 
@@ -132,8 +125,14 @@ public static void main(String[] args){
 
 
 			   if (!edges.containsKey(source.getId() + "-" + target.getId())) {
-				 Edge e =  source.connectTo(target).setWeight((float).5);
+
+				   Spell edgespell = new SpellImpl();
+				   edgespell.setStartValue(replies.get(i).date);
+				   edgespell.setEndValue(endDate);
+				   Edge e =  source.connectTo(target).setWeight((float).5);
+				   e.getSpells().add(edgespell);
 				   edges.put(source.getId() + "-" + target.getId(), e);
+
 			   }else{
 				  float weight = edges.get(source.getId() + "-" + target.getId()).getWeight();
 				   edges.get(source.getId() + "-" + target.getId()).setWeight(weight + ((float).5));
@@ -142,10 +141,10 @@ public static void main(String[] args){
 	   }
 
 
-
+System.out.println(endDate);
 
 	StaxGraphWriter graphWriter = new StaxGraphWriter();
-	File f = new File(coursetitle + " -Network" + ".gexf");
+	File f = new File(coursetitle + " -debug" + ".gexf");
 	Writer out;
 	try {
 		out =  new FileWriter(f, false);

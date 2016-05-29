@@ -31,6 +31,8 @@ public class CSVDataParser {
 	public void main() throws IOException {
 
 
+		//Todo: replace with BigQuery
+
 		// Paths for CSV Files Todo: Switch this to a file chooser GUI
 		filepathUsers = "/Users.csv";
 		filepathNetwork = "/China.csv";
@@ -40,11 +42,6 @@ public class CSVDataParser {
 		users = new HashMap<Integer, User>();
 
 
-
-		// CSV Source for the Users
-		InputStream us = ISITMenu.class.getResourceAsStream(filepathUsers);
-		BufferedReader usersInput = new BufferedReader(new InputStreamReader(us));
-		Iterable<CSVRecord> userRecords = CSVFormat.EXCEL.withHeader().parse(usersInput);
 
 		//Todo: add in grade parsing
 /*
@@ -59,13 +56,6 @@ public class CSVDataParser {
 		BufferedReader discussionInput = new BufferedReader(new InputStreamReader(discussion));
 		Iterable<CSVRecord> forumRecords = CSVFormat.EXCEL.withHeader().parse(discussionInput);
 
-		//Populate list of Users, using integer Id's as keys
-		for(CSVRecord record : userRecords){
-
-		User u = new User( Integer.parseInt(record.get("id")), record.get("username"), record.get("hash_id"));
-
-			users.put(Integer.parseInt(record.get("id")), u);
-		}
 
 
 		//Create dynamic attribute lists for Users
@@ -82,18 +72,24 @@ public class CSVDataParser {
 		//Create list of threads with ordered lists of comments
  		for (CSVRecord record : forumRecords) {
 
-			//CSV column names for comment fields
+			//Getting Comment parameters in appropriate types from String fields in data
 			String body = record.get("body");
 			String type = record.get("_type");
 			String commentId = record.get("_id__$oid");
 			String threadID = record.get("comment_thread_id__$oid");
 			int authorID = Integer.parseInt(record.get("author_id"));
-
-
-			//Todo: fix, Currently erroring
-			// long date = Long.parseLong(record.get("created_at__$date"));
-			long date = 0;
+			String userName = record.get("author_username");
+			long dateLong = Double.valueOf(record.get("created_at__$date")).longValue();
+			Date date = new Date(dateLong);
+			System.out.println(date);
 			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
+
+
+			if(!users.containsKey(authorID)){
+				User u = new User(authorID, userName, date);
+				users.put(authorID, u);
+			}
+
 
 
 			Comment c = new Comment(users.get(authorID), body, threadID, date, isThreadStarter);
