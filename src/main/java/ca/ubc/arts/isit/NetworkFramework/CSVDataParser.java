@@ -7,14 +7,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.lang.*;
 
 /**
- * Created by mario on 2/28/16.
+ * @author MarioCimet
+ *
+ * 	This class handles parsing of the csv files which contain the relevant data
+
  */
 public class CSVDataParser {
 	public static Map<String, Thread> threads;
@@ -24,16 +29,16 @@ public class CSVDataParser {
 	public static String filepathGrades;
 
 
-	public CSVDataParser(){
 
-	}
+	public CSVDataParser(){}
 
-	public void main() throws IOException {
+	public void main() throws IOException, ParseException {
 
+		Date endDate =  new Date(1423580832420L);
 
-		//Todo: replace with BigQuery
+		//Big Todo: replace with Google BigQuery requests
 
-		// Paths for CSV Files Todo: Switch this to a file chooser GUI
+		//Small Todo: Switch this to a file chooser GUI
 		filepathUsers = "/Users.csv";
 		filepathNetwork = "/China.csv";
 		filepathGrades = "/Grades.csv";
@@ -41,15 +46,18 @@ public class CSVDataParser {
 		threads = new HashMap<String,Thread>();
 		users = new HashMap<Integer, User>();
 
+		//CSV Source for Users
+		InputStream us = ISITMenu.class.getResourceAsStream(filepathUsers);
+		BufferedReader usersInput = new BufferedReader(new InputStreamReader(us));
+		Iterable<CSVRecord> userRecords = CSVFormat.EXCEL.withHeader().parse(usersInput);
 
 
-		//Todo: add in grade parsing
-/*
+
 		//CSV Source for Grades
-		InputStream gs = ISITMenu.class.getResourceAsStream(filepathUsers);
+		InputStream gs = ISITMenu.class.getResourceAsStream(filepathGrades);
 		BufferedReader gradesInput = new BufferedReader(new InputStreamReader(gs));
 		Iterable<CSVRecord> gradeRecords = CSVFormat.EXCEL.withHeader().parse(gradesInput);
-*/
+
 
 		// CSV Source for the Discussion Forum
 		InputStream discussion = ISITMenu.class.getResourceAsStream(filepathNetwork);
@@ -57,19 +65,10 @@ public class CSVDataParser {
 		Iterable<CSVRecord> forumRecords = CSVFormat.EXCEL.withHeader().parse(discussionInput);
 
 
-
-		//Create dynamic attribute lists for Users
 		/*
-		for(CSVRecord record : gradeRecords){
-			User u = users.get(Integer.parseInt(record.get("id")));
-
-			//TODO: Parse the Date
-		if(!record.get("max_grade").equalsIgnoreCase("NULL")) u.gradeAttribute.put(parseDate(record.get("created")), Float.parseFloat(record.get("grade")));
-
-		}
-		*/
-
-		//Create list of threads with ordered lists of comments
+		Purpose: Extract data from discussion forum logs.
+		Pre-Condition: forumRecords MUST be sorted by comment type (CommentThreads before Comments) and date (old to new)
+		 */
  		for (CSVRecord record : forumRecords) {
 
 			//Getting Comment parameters in appropriate types from String fields in data
@@ -81,20 +80,15 @@ public class CSVDataParser {
 			String userName = record.get("author_username");
 			long dateLong = Double.valueOf(record.get("created_at__$date")).longValue();
 			Date date = new Date(dateLong);
-			System.out.println(date);
 			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
 
-
+			//If user hasn't been seen yet, create user object and save date of the first post
 			if(!users.containsKey(authorID)){
 				User u = new User(authorID, userName, date);
 				users.put(authorID, u);
 			}
 
-
-
 			Comment c = new Comment(users.get(authorID), body, threadID, date, isThreadStarter);
-
-
 
 			//If a post is a new thread, create a thread object and initialize the list of users with the poster
 			if (isThreadStarter) {
@@ -102,17 +96,70 @@ public class CSVDataParser {
 				threads.put(commentId, thread);
 			}
 
+			//Otherwise, add the comment to the relevant thread
 			if (type.equalsIgnoreCase("comment")) {
 				threads.get(threadID).replies.add(c);
 			}
 
 		}
+/*
 
-	}
+		// Purpose: record any users who did not participate in discussion, who may have grades
+		for(CSVRecord record:userRecords){
+			if (!users.containsKey(Integer.parseInt(record.get("id")))){
+				int id = Integer.parseInt(record.get("id"));
+				String userName = record.get("username");
+				User u = new User(id, userName, endDate);
+			}
+		}
+*/
 
-	//Todo: Implement this method
-	private Date parseDate(String date){
-		return null;
+
+		/*
+		Purpose: create longitudinal grade attribute for students
+		Pre-Condition: gradeRecords MUST be cleaned of all non-graded rows (where maxGrade is NULL),
+					   gradeRecords MUST be sorted by date (old to new)
+		 */
+
+		for(CSVRecord record:gradeRecords){
+			if(record.get("student_id").isEmpty()) break;
+			User user = users.get(Integer.parseInt(record.get("student_id")));
+			Integer grade = Integer.parseInt(record.get("grade"));
+			Integer maxGrade = Integer.parseInt(record.get("max_grade"));
+
+			user.gradeTotal += grade;
+			user.gradeMax += maxGrade;
+
+			double percent = user.gradeTotal / user.gradeMax;
+
+
+
+			DateFormat df = new SimpleDateFormat("MM/dd/yy");
+
+
+
+				Date date = df.parse(record.get("created"));
+
+
+		//	if(date.before(user.firstPost)) user.firstPost = date;
+				HashMap<Date,Double> map = user.gradeAbsolute;
+				HashMap<Date,Double> map2 = user.gradePercent;
+
+			map2.put(date, percent);
+
+
+			if(map.containsKey(date)){
+					map.put(date, map.get(date) + grade);
+				}else {
+
+				map.put(date, grade.doubleValue());
+			}
+
+
+
+
+
+		}
 
 	}
 

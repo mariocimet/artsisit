@@ -4,6 +4,7 @@ import com.google.common.hash.HashCode;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,7 +15,10 @@ public class User {
 	public final String userName;
 	public final Date firstPost;
 	public static ArrayList<Comment> comments;
-	public static Map<Date, Float> gradeAttribute;
+	public static HashMap<Date, Double> gradePercent;
+	public static HashMap<Date, Double> gradeAbsolute;
+	public static double gradeTotal;
+	public static double gradeMax;
 
 	//Todo: Add a representation of dynamic attributes
 
@@ -25,11 +29,17 @@ public class User {
 		this.authorId = authorId;
 		this.userName = userName;
 		this.firstPost = firstPost;
+		gradePercent = new HashMap<Date, Double>();
+		gradeAbsolute = new HashMap<Date,Double>();
+		gradeTotal = 0;
+		gradeMax = 0;
+
 	}
 
 	public String getUserName(){
 		return this.userName;
 	}
+
 
 
 
@@ -39,8 +49,7 @@ public class User {
 
 	public double averageGrade(){
 
-	//Todo: implement average grade calculation
-	return 0;
+ 	return gradeTotal / gradeMax;
 
 	}
 
