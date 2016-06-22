@@ -23,8 +23,11 @@ import java.lang.*;
  */
 public class CSVDataParser {
 	public static Map<String, Thread> threads;
-	public static Map<Integer, User> users;
+	public static Map<String, User> users;
+
 	public static String filepathNetwork;
+	public static String filePathRead;
+
 	public static String filepathUsers;
 	public static String filepathGrades;
 
@@ -39,13 +42,14 @@ public class CSVDataParser {
 		//Big Todo: replace with Google BigQuery requests
 
 		//Small Todo: Switch this to a file chooser GUI
-		filepathUsers = "/Users.csv";
-		filepathNetwork = "/China.csv";
-		filepathGrades = "/Grades.csv";
+	//	filepathUsers = "/Users.csv";
+		filepathNetwork = "/ClimateForum15.csv";
+		filePathRead = "/ClimateRead15.csv";
+	//	filepathGrades = "/Grades.csv";
 
 		threads = new HashMap<String,Thread>();
-		users = new HashMap<Integer, User>();
-
+		users = new HashMap<String, User>();
+/*
 		//CSV Source for Users
 		InputStream us = ISITMenu.class.getResourceAsStream(filepathUsers);
 		BufferedReader usersInput = new BufferedReader(new InputStreamReader(us));
@@ -57,12 +61,18 @@ public class CSVDataParser {
 		InputStream gs = ISITMenu.class.getResourceAsStream(filepathGrades);
 		BufferedReader gradesInput = new BufferedReader(new InputStreamReader(gs));
 		Iterable<CSVRecord> gradeRecords = CSVFormat.EXCEL.withHeader().parse(gradesInput);
-
+*/
 
 		// CSV Source for the Discussion Forum
 		InputStream discussion = ISITMenu.class.getResourceAsStream(filepathNetwork);
 		BufferedReader discussionInput = new BufferedReader(new InputStreamReader(discussion));
 		Iterable<CSVRecord> forumRecords = CSVFormat.EXCEL.withHeader().parse(discussionInput);
+
+
+		// CSV Source for the ReadData Forum
+		InputStream readData = ISITMenu.class.getResourceAsStream(filePathRead);
+		BufferedReader rD = new BufferedReader(new InputStreamReader(readData));
+		Iterable<CSVRecord> readRecords = CSVFormat.EXCEL.withHeader().parse(rD);
 
 
 		/*
@@ -74,21 +84,21 @@ public class CSVDataParser {
 			//Getting Comment parameters in appropriate types from String fields in data
 			String body = record.get("body");
 			String type = record.get("_type");
-			String commentId = record.get("_id__$oid");
-			String threadID = record.get("comment_thread_id__$oid");
+			String commentId = record.get("mongoid");
+			String threadID = record.get("comment_thread_id");
 			int authorID = Integer.parseInt(record.get("author_id"));
 			String userName = record.get("author_username");
-			long dateLong = Double.valueOf(record.get("created_at__$date")).longValue();
+			long dateLong = Double.valueOf(record.get("created_at")).longValue();
 			Date date = new Date(dateLong);
 			boolean isThreadStarter = type.equalsIgnoreCase("commentThread");
 
 			//If user hasn't been seen yet, create user object and save date of the first post
-			if(!users.containsKey(authorID)){
+			if(!users.containsKey(userName)){
 				User u = new User(authorID, userName, date);
-				users.put(authorID, u);
+				users.put(userName, u);
 			}
 
-			Comment c = new Comment(users.get(authorID), body, threadID, date, isThreadStarter);
+			Comment c = new Comment(users.get(userName), body, threadID, date, isThreadStarter);
 
 			//If a post is a new thread, create a thread object and initialize the list of users with the poster
 			if (isThreadStarter) {
@@ -100,6 +110,38 @@ public class CSVDataParser {
 			if (type.equalsIgnoreCase("comment")) {
 				threads.get(threadID).replies.add(c);
 			}
+
+		}
+
+
+
+		for (CSVRecord record : readRecords) {
+
+			if(record.get("username").isEmpty()) continue;
+
+			String userName = record.get("username");
+			String threadID = record.get("thread_id");
+			Thread thread = threads.get(threadID);
+
+
+
+			if(!users.containsKey(userName)){
+				User u = new User(userName.hashCode(), userName, endDate);
+				users.put(userName, u);
+			}
+
+
+
+			User u = users.get(userName);
+			HashMap<Thread, Integer> map = u.reads;
+
+
+			if(map.containsKey(thread)){
+				map.put(thread, map.get(thread) +1 );
+			}else{ map.put(thread,1); }
+
+
+
 
 		}
 /*
@@ -120,7 +162,7 @@ public class CSVDataParser {
 		Pre-Condition: gradeRecords MUST be cleaned of all non-graded rows (where maxGrade is NULL),
 					   gradeRecords MUST be sorted by date (old to new)
 		 */
-
+/*
 		for(CSVRecord record:gradeRecords){
 			if(record.get("student_id").isEmpty()) break;
 			User user = users.get(Integer.parseInt(record.get("student_id")));
@@ -160,7 +202,6 @@ public class CSVDataParser {
 
 
 		}
-
+*/
 	}
-
 }

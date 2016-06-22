@@ -19,6 +19,7 @@ public class User {
 	public static HashMap<Date, Double> gradeAbsolute;
 	public static double gradeTotal;
 	public static double gradeMax;
+	public static HashMap<Thread, Integer> reads;
 
 	//Todo: Add a representation of dynamic attributes
 
@@ -33,6 +34,7 @@ public class User {
 		gradeAbsolute = new HashMap<Date,Double>();
 		gradeTotal = 0;
 		gradeMax = 0;
+		reads = new HashMap<Thread, Integer>();
 
 	}
 
